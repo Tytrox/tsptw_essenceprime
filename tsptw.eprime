@@ -1,0 +1,93 @@
+language ESSENCE' 1.0
+
+given max_duration : int(1..)
+given graph : matrix indexed by [ int(1..n_nodes), int(1..n_nodes) ] of int(-1..)
+
+where n_nodes >= 3
+
+letting NODES be domain int(1..n_nodes)
+letting NODES_LESS_START be domain int(2..n_nodes)
+letting maxOrder be n_nodes - 1
+letting ORDER be domain int(1..maxOrder)
+letting ORDER_LESS_ONE be domain int(1..maxOrder - 1)
+letting readyTime be 1
+letting deadlineTime be 2
+letting WINDOW_BOUNDS be int(1..2)
+
+given window : matrix indexed by [ NODES, WINDOW_BOUNDS ] of int(0..)
+given service_time : matrix indexed by [ NODES ] of int(0..)
+
+find order : matrix indexed by [ ORDER ] of NODES_LESS_START
+find service_depo_first : bool
+
+find arrival_time : matrix indexed by [ NODES ] of int(0..max_duration)
+find waiting_time : matrix indexed by [ NODES ] of int(0..max_duration)
+
+find duration : int(0..max_duration)
+
+minimising duration
+
+such that
+
+allDiff(order),
+
+$ Accessible nodes
+$ First and last order must be accessible
+graph[1, order[1]] >= 0,
+graph[order[maxOrder], 1] >= 0,
+
+$ intermediate nodes must be accessible
+forAll o : ORDER_LESS_ONE .
+    graph[order[o], order[o + 1]] >= 0,
+
+$ Arrival time
+$ First arrival time
+service_depo_first -> arrival_time[order[1]] = waiting_time[1] + service_time[1] + graph[1, order[1]],
+!service_depo_first -> arrival_time[order[1]] = graph[1, order[1]],
+
+$ Last arrival time
+arrival_time[1] = (
+    arrival_time[order[maxOrder]]
+    + waiting_time[order[maxOrder]]
+    + service_time[order[maxOrder]]
+    + graph[order[maxOrder], 1]
+),
+
+$ intermediate arrival times
+forAll o : ORDER_LESS_ONE .
+    arrival_time[order[o + 1]] = (
+        arrival_time[order[o]]
+        + waiting_time[order[o]]
+        + service_time[order[o]]
+        + graph[order[o], order[o + 1]]
+    ),
+
+$ waiting time
+$ depo waiting time
+service_depo_first -> waiting_time[1] = window[1, readyTime],
+!service_depo_first -> waiting_time[1] = max(0, window[1, readyTime] - arrival_time[1]),
+$ other waiting times
+forAll n : NODES_LESS_START .
+    waiting_time[n] = max(0, window[n, readyTime] - arrival_time[n]),
+
+$ preventing late service
+forAll n : NODES .
+    window[n, deadlineTime] >= arrival_time[n] + service_time[n],
+
+duration = (
+    $ separations between each middle node
+    (
+        sum o : ORDER_LESS_ONE .
+            graph[order[o], order[o + 1]]
+    )
+    $ separation between depo and first node
+    + graph[1, order[1]]
+    $ separation between depo and last node
+    + graph[order[maxOrder], 1]
+    $ total service time of all nodes
+    + sum(service_time)
+    $ total waiting time at each node
+    + sum(waiting_time)
+),
+
+true

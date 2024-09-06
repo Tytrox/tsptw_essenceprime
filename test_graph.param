@@ -1,0 +1,12 @@
+language ESSENCE' 1.0
+
+$ For entry [x, y] read as the time taken to move from node x to node y
+letting graph = [[0, 1, 2], [1, 0, 2], [2, 2, 0]]
+$ Each submatrix contains a tuple (x, y), where x is when the node can first
+$ accept service, and y is the time the node must be serviced by
+letting window = [[0, 20], [5, 7], [3, 20]]
+$ The time taken to service each node
+letting service_time = [1, 1, 1]
+
+$ precalculated maximum possible duration
+letting max_duration = 22
