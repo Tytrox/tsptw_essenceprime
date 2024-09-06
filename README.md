@@ -39,14 +39,14 @@ the must finish at the latest at the end of the window.
 
 `service_time` defines the time each node requires to be serviced.
 
-`max_duration` is the upper limit of duration the solver will search for.
+`max_duration` is the upper limit of duration the solver will search for.  
 This can be pre-calculated fairly easily:  
   max((depo deadline + depo service time), max(non-depo deadline + non-depo service time + time to depo))
 
 ## Result explination
 
-`arrival_time` - the time the agent arrives at each node
-`duration` - the agent's active time travelling, waiting, or servicing nodes
-`order` - the order the agent visits intermediate nodes. The agent starts and ends at node 1, which is not shown.
-`service_depo_first` - whether the agent services the depo first or last
-`waiting_time` - the time the agent waits at each node
+`arrival_time` - the time the agent arrives at each node  
+`duration` - the agent's active time travelling, waiting, or servicing nodes  
+`order` - the order the agent visits intermediate nodes. The agent starts and ends at node 1, which is not shown.  
+`service_depo_first` - whether the agent services the depo first or last  
+`waiting_time` - the time the agent waits at each node  
